@@ -1,1 +1,0 @@
-# attryb_assignment
