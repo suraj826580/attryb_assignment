@@ -51,7 +51,8 @@ const Login = () => {
     dispatch(LoginFun(formValue))
       .then((res) => {
         if (res.type == "LOGIN_REQ_SUCESS") {
-          // navigate("/signup");
+          navigate("/dashboard");
+          localStorage.setItem("token", JSON.stringify(res.payload));
         } else {
           return toast({
             position: "top",

@@ -6,17 +6,19 @@ import {
   Flex,
   FormControl,
   Checkbox,
-  CheckboxGroup,
   FormLabel,
+  useToast,
   HStack,
+  Spinner,
   Heading,
   Input,
   Textarea,
   Stack,
 } from "@chakra-ui/react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
+import { action_add_car } from "../redux/inventory/action";
 
 const carsDetailsObject = {
   image: "",
@@ -25,23 +27,59 @@ const carsDetailsObject = {
   accidentsReports: "",
   previousBuyers: "",
   registrationPlace: "",
+  originalPaint: false,
+  majorScratches: false,
   price: "",
   description: "",
+  oem_specification_id: "",
 };
 
 const AddCarForm = () => {
-  const [cardDetails, setcardDetails] = useState(carsDetailsObject);
+  const navigate = useNavigate();
+  const [carDetails, setcarDetails] = useState(carsDetailsObject);
   const [object, setObject] = useState({});
   //   Catch id from URL
   const { id } = useParams();
+  const toast = useToast();
 
   // redux dispatcher
   const dispatch = useDispatch();
   // redux store
-  const store = useSelector((store) => store.OEM_Reducer);
+  const store = useSelector((store) => store.addCarReducer);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const newObject = { ...carDetails, oem_specification_id: object._id };
+    dispatch(action_add_car(newObject))
+      .then((res) => {
+        if (res) {
+          setTimeout(() => {
+            navigate("/inventory");
+          }, 1000);
+          return toast({
+            title: `Car Details Added`,
+            status: "success",
+            isClosable: true,
+            duration: 1000,
+            position: "top",
+          });
+        } else {
+          return toast({
+            title: `Something Wrong`,
+            status: "error",
+            isClosable: true,
+            duration: 1000,
+            position: "top",
+          });
+        }
+      })
+      .catch((err) => console.log(err));
 
-  const handleSubmit = (e) => {};
-  const handleChange = (e) => {};
+    setcarDetails(carsDetailsObject);
+  };
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setcarDetails({ ...carDetails, [name]: value });
+  };
 
   useEffect(() => {
     (() => {
@@ -62,45 +100,110 @@ const AddCarForm = () => {
             <Center>
               <Heading fontSize={"lg"}>Add Your Car Details</Heading>
             </Center>
-            <form action="" onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit}>
               <FormControl pb={2}>
                 <FormLabel>Image</FormLabel>
-                <Input type="url" />
+                <Input
+                  isRequired
+                  type="url"
+                  value={carDetails.image}
+                  name="image"
+                  onChange={handleChange}
+                />
               </FormControl>
               <FormControl pb={2}>
                 <FormLabel>Title</FormLabel>
-                <Input type="text" />
+                <Input
+                  isRequired
+                  value={carDetails.title}
+                  name="title"
+                  onChange={handleChange}
+                  type="text"
+                />
               </FormControl>
               <FormControl py={2}>
                 {" "}
                 <Stack direction="row" spacing={5}>
-                  <Checkbox>Major Scratches</Checkbox>
-                  <Checkbox>Original Parents</Checkbox>
+                  <Checkbox
+                    defaultChecked={carDetails.majorScratches}
+                    onChange={(e) =>
+                      setcarDetails({
+                        ...carDetails,
+                        majorScratches: e.target.checked,
+                      })
+                    }>
+                    Major Scratches
+                  </Checkbox>
+                  <Checkbox
+                    defaultChecked={carDetails.originalPaint}
+                    onChange={(e) =>
+                      setcarDetails({
+                        ...carDetails,
+                        originalPaint: e.target.checked,
+                      })
+                    }>
+                    Original Parents
+                  </Checkbox>
                 </Stack>
               </FormControl>
               <FormControl pb={2}>
                 <FormLabel>Km in Odometer</FormLabel>
-                <Input type="number" />
+                <Input
+                  isRequired
+                  type="number"
+                  value={carDetails.kmInOdometer}
+                  name="kmInOdometer"
+                  onChange={handleChange}
+                />
               </FormControl>
               <FormControl pb={2}>
                 <FormLabel>Number of Accidents reported</FormLabel>
-                <Input type="number" />
+                <Input
+                  isRequired
+                  type="number"
+                  value={carDetails.accidentsReports}
+                  name="accidentsReports"
+                  onChange={handleChange}
+                />
               </FormControl>
               <FormControl pb={2}>
                 <FormLabel>Number of Previous buyers</FormLabel>
-                <Input type="number" />
+                <Input
+                  isRequired
+                  value={carDetails.previousBuyers}
+                  name="previousBuyers"
+                  onChange={handleChange}
+                  type="number"
+                />
               </FormControl>
               <FormControl pb={2}>
                 <FormLabel>Registration Place</FormLabel>
-                <Input type="text" />
+                <Input
+                  isRequired
+                  value={carDetails.registrationPlace}
+                  name="registrationPlace"
+                  onChange={handleChange}
+                  type="text"
+                />
               </FormControl>
               <FormControl pb={2}>
                 <FormLabel>Price</FormLabel>
-                <Input type="number" />
+                <Input
+                  isRequired
+                  value={carDetails.price}
+                  name="price"
+                  onChange={handleChange}
+                  type="number"
+                />
               </FormControl>
               <FormControl pb={2}>
                 <FormLabel>Description</FormLabel>
-                <Textarea type="number" />
+                <Textarea
+                  isRequired
+                  value={carDetails.description}
+                  name="description"
+                  onChange={handleChange}
+                />
               </FormControl>
               <Center>
                 <Button
@@ -109,7 +212,11 @@ const AddCarForm = () => {
                   _focus={{ bgColor: "#00171F" }}
                   color={"#fff"}
                   variant={"outline"}>
-                  Submit Car Information
+                  {store.isLoading ? (
+                    <Spinner size="lg" />
+                  ) : (
+                    "Submit Car Information"
+                  )}
                 </Button>
               </Center>
             </form>

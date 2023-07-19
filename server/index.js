@@ -4,6 +4,7 @@ const cors = require("cors");
 const { connection } = require("./configs/db");
 const { userRoute } = require("./routes/userRoute");
 const { oemRoute } = require("./routes/oem-route");
+const { invertoryRoute } = require("./routes/inventory-route");
 // App
 const app = express();
 app.use(express.json());
@@ -17,6 +18,7 @@ require("dotenv").config();
 
 app.use("/", userRoute);
 app.use("/oem", oemRoute);
+app.use("/inventory", invertoryRoute);
 // Listen Our App
 app.listen(process.env.PORT, async () => {
   await connection;

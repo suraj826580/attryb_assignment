@@ -11,9 +11,9 @@ import {
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 import { Link, useNavigate } from "react-router-dom";
 const Links = [
-  { text: "Dashboard", url: "" },
+  { text: "Dashboard", url: "/dashboard" },
   { text: "Add Car", url: "/addcar" },
-  { text: "Inventory", url: "" },
+  { text: "Inventory", url: "/inventory " },
 ];
 
 export default function Navbar() {
